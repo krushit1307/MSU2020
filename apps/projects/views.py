@@ -27,6 +27,7 @@ from apps.projects.models import Milestone, Project, ProjectAttachment
 from apps.projects.progress import calculate_project_progress
 from apps.projects.state_machine import allowed_milestone_next, allowed_project_next
 from apps.projects.timeline import timeline_rows
+from apps.projects.funding_gates import project_funding_gate_metrics
 from apps.stakeholders.models import UserProfile
 
 

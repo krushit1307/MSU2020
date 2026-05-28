@@ -26,6 +26,20 @@ class NeedForm(forms.ModelForm):
         self.fields["owners"].label = "Owners"
         self.fields["owners"].help_text = "At least one registered user accountable for this need."
         self.fields["owners"].widget.attrs.update(OWNERS_SELECT_ATTRS)
+        
+        # If it is a new form, clear out the default 0 value so the field is initially empty
+        if not self.instance.pk:
+            self.fields["target_amount"].initial = ""
+        self.fields["target_amount"].widget.attrs.update({"min": "0"})
+        
+        # Set empty label for Department field
+        self.fields["department"].empty_label = "Choose Department...."
+
+    def clean_target_amount(self):
+        amount = self.cleaned_data.get("target_amount")
+        if amount is not None and amount <= 0:
+            raise forms.ValidationError("Target amount must be a positive number greater than zero.")
+        return amount
 
     def clean_owners(self):
         owners = self.cleaned_data.get("owners")

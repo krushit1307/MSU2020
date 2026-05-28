@@ -1,0 +1,8 @@
+username,email,first_name,last_name,personas,organization,jurisdiction
+hod_test,hod@test.com,HOD,Tester,hod,Science Dept,india
+donor_test,donor@test.com,Donor,Tester,donor,Corporate Inc,us
+lead_test,lead@test.com,Lead,Tester,project_lead,,india
+finance_test,finance@test.com,Finance,Tester,finance_controller,,india
+gov_test,gov@test.com,Gov,Tester,governance,,india
+volunteer_test,vol@test.com,Volunteer,Tester,volunteer,,india
+auditor_test,auditor@test.com,Auditor,Tester,auditor,,india

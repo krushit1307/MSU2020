@@ -71,6 +71,19 @@ class ContributionForm(forms.ModelForm):
             ]
         ).order_by("-start_datetime")
 
+        # Friendly select placeholders
+        self.fields["donor"].empty_label = "Choose Donor..."
+        self.fields["project"].empty_label = "Choose Project (Optional)..."
+        self.fields["event"].empty_label = "Choose Event (Optional)..."
+        self.fields["fund_pool"].empty_label = "Choose Fund Pool..."
+        self.fields["volunteer_lead"].empty_label = "Choose Volunteer Lead (Optional)..."
+        self.fields["jurisdiction_origin"].choices = [("", "Choose Jurisdiction...")] + [c for c in self.fields["jurisdiction_origin"].choices if c[0] != ""]
+
+        # Visual calendar pickers
+        self.fields["pledge_date"].widget = forms.DateInput(attrs={"type": "date"})
+        self.fields["received_date"].widget = forms.DateInput(attrs={"type": "date"})
+        self.fields["receipt_sent_date"].widget = forms.DateInput(attrs={"type": "date"})
+
 
 class ExpenseForm(forms.ModelForm):
     class Meta:
@@ -84,6 +97,7 @@ class ExpenseForm(forms.ModelForm):
             "expense_date",
             "receipt_reference",
             "owners",
+            "receipt_pdf",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -93,6 +107,18 @@ class ExpenseForm(forms.ModelForm):
         self.fields["owners"].label = "Owners (approval / accountability)"
         self.fields["owners"].help_text = "At least one registered user (e.g. you as requester; add finance if needed)."
         self.fields["owners"].widget.attrs.update(OWNERS_SELECT_ATTRS)
+
+        # Friendly select placeholders
+        self.fields["project"].empty_label = "Choose Project..."
+        self.fields["fund_pool"].empty_label = "Choose Fund Pool..."
+
+        # Visual calendar picker
+        self.fields["expense_date"].widget = forms.DateInput(attrs={"type": "date"})
+
+        self.fields["receipt_pdf"].label = "Upload Expense Report / Supporting document"
+        self.fields["receipt_pdf"].required = False
+
+
 
     def clean_owners(self):
         owners = self.cleaned_data.get("owners")

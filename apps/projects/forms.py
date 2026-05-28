@@ -28,6 +28,7 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, need=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["lead"].required = False
+        self.fields["lead"].empty_label = "Choose Project Lead..."
         self.fields["owners"].queryset = active_registered_users_queryset()
         self.fields["owners"].label = "Owners"
         self.fields["owners"].help_text = "At least one registered user accountable for this project."
@@ -39,6 +40,29 @@ class ProjectForm(forms.ModelForm):
             "Starts as the approved need's title so needs and projects stay aligned; change only if you need a distinct label."
         )
         self.fields["students_impacted"].required = False
+
+        # Clear default 0 budget and prevent negative inputs
+        if not self.instance.pk:
+            self.fields["budget"].initial = ""
+        self.fields["budget"].widget.attrs.update({"min": "0"})
+
+        # Set HTML5 Date widgets for visual calendar picker
+        self.fields["start_date"].widget = forms.DateInput(attrs={"type": "date"})
+        self.fields["target_end_date"].widget = forms.DateInput(attrs={"type": "date"})
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get("start_date")
+        end = cleaned_data.get("target_end_date")
+        if start and end and end < start:
+            self.add_error("target_end_date", "Target end date cannot be before the start date.")
+        return cleaned_data
+
+    def clean_budget(self):
+        budget = self.cleaned_data.get("budget")
+        if budget is not None and budget <= 0:
+            raise forms.ValidationError("Budget must be a positive number greater than zero.")
+        return budget
 
     def clean_title(self):
         title = (self.cleaned_data.get("title") or "").strip()
@@ -106,6 +130,10 @@ class MilestoneForm(forms.ModelForm):
         )
         self.fields["completion_proof"].required = False
 
+        # Set HTML5 Date widgets for visual calendar picker
+        self.fields["start_date"].widget = forms.DateInput(attrs={"type": "date"})
+        self.fields["due_date"].widget = forms.DateInput(attrs={"type": "date"})
+
     def clean_completion_proof(self):
         f = self.cleaned_data.get("completion_proof")
         if f:
@@ -118,6 +146,11 @@ class MilestoneForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        start = cleaned.get("start_date")
+        due = cleaned.get("due_date")
+        if start and due and due < start:
+            self.add_error("due_date", "Due date cannot be before the start date.")
+
         status = cleaned.get("status")
         tr = cleaned.get("next_tranche_budget_percent")
         if tr is None:

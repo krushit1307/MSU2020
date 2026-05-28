@@ -168,6 +168,12 @@ class Expense(TimeStampedModel):
     receipt_reference = models.CharField(max_length=255, blank=True)
     status = models.CharField(max_length=32, choices=Status.choices, default=Status.PENDING)
     requires_governance_approval = models.BooleanField(default=False)
+    receipt_pdf = models.FileField(
+        upload_to="expenses/receipts/",
+        blank=True,
+        null=True,
+        help_text="PDF or document proving the expense."
+    )
     owners = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name="owned_expenses",

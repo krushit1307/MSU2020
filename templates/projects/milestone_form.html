@@ -18,4 +18,30 @@
   {% endfor %}
   <button type="submit" class="rounded bg-emerald-700 px-4 py-2 text-white">Save</button>
 </form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Dynamic date restriction (Due date >= Start date)
+    const startDateInput = document.getElementById('id_start_date');
+    const endDateInput = document.getElementById('id_due_date');
+
+    if (startDateInput && endDateInput) {
+      function restrictEndDate() {
+        if (startDateInput.value) {
+          endDateInput.min = startDateInput.value;
+          if (endDateInput.value && endDateInput.value < startDateInput.value) {
+            endDateInput.value = startDateInput.value;
+          }
+        } else {
+          endDateInput.min = '';
+        }
+      }
+
+      startDateInput.addEventListener('change', restrictEndDate);
+      // Run once initially to pre-fill restriction if start_date is already set
+      restrictEndDate();
+    }
+  });
+</script>
 {% endblock %}
+

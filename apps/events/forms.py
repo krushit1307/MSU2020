@@ -30,6 +30,7 @@ class EventForm(forms.ModelForm):
             "fund_pool",
             "target_audience",
             "is_fundraising",
+            "details_doc",
         ]
         widgets = {
             "title": forms.TextInput(attrs={"class": _INPUT}),
@@ -42,6 +43,7 @@ class EventForm(forms.ModelForm):
             "target_amount": forms.NumberInput(attrs={"class": _INPUT}),
             "target_audience": forms.Textarea(attrs={"class": _INPUT, "rows": 2}),
             "is_fundraising": forms.CheckboxInput(attrs={"class": "rounded border-slate-300"}),
+            "details_doc": forms.FileInput(attrs={"class": "mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-emerald-800 hover:file:bg-emerald-100"}),
         }
 
     def __init__(self, user, *args, **kwargs):
@@ -55,6 +57,15 @@ class EventForm(forms.ModelForm):
         for name in ("event_type", "jurisdiction", "status", "linked_project", "linked_need", "fund_pool"):
             if name in self.fields:
                 self.fields[name].widget.attrs["class"] = _INPUT
+        
+        # Friendly select placeholders
+        self.fields["linked_project"].empty_label = "Choose Linked Project (Optional)..."
+        self.fields["linked_need"].empty_label = "Choose Linked Need (Optional)..."
+        self.fields["fund_pool"].empty_label = "Choose Fund Pool (Optional)..."
+
+        self.fields["details_doc"].label = "Upload Event Details / Supporting document"
+        self.fields["details_doc"].required = False
+
         if not self.instance.pk:
             self.fields["status"].initial = Event.Status.DRAFT
             self.fields["status"].widget = forms.HiddenInput()

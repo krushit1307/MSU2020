@@ -41,6 +41,7 @@ def _user(username, email, password, role, org=None):
     prof.stakeholder_type = role
     prof.organization = org
     prof.save()
+    replace_user_personas(u, [role])
     return u
 
 
@@ -62,20 +63,49 @@ class Command(BaseCommand):
             defaults={"name": "US 501(c)(3) pool", "description": "US"},
         )
 
-        org_hostel, _ = Organization.objects.get_or_create(
-            name="Estate & Hostels",
-            defaults={
-                "org_type": Organization.OrgType.DEPARTMENT,
-                "jurisdiction": Organization.Jurisdiction.INDIA,
-            },
-        )
-        org_academic, _ = Organization.objects.get_or_create(
-            name="Academic Affairs",
-            defaults={
-                "org_type": Organization.OrgType.DEPARTMENT,
-                "jurisdiction": Organization.Jurisdiction.INDIA,
-            },
-        )
+        # Seed user-requested departments
+        departments_list = [
+            "Department of Applied Chemistry",
+            "Department of Applied Mathematics",
+            "Department of Applied Mechanics and Structural Engineering",
+            "Department of Applied Physics",
+            "Department of Architecture",
+            "Department of Business Economics",
+            "Department of Chemical Engineering",
+            "Department of Civil Engineering",
+            "Department of Computer Science and Engineering",
+            "Department of Electrical Engineering",
+            "Department of English",
+            "Department of Mechanical Engineering",
+            "Department of Metallurgical and Materials Engineering",
+            "Department of Textile Chemistry",
+            "Department of Textile Engineering",
+            "Water Resources Engineering and Management Institute (WREMI)",
+            
+            # Additional departments for user's test plan
+            "Computer Eng.",
+            "Mechanical Eng.",
+            "Applied Math",
+            "Chemical Eng.",
+            "Civil Eng.",
+            "Electrical Eng.",
+            "Electronics (ECE)",
+            "Info. Tech (IT)",
+        ]
+
+        depts = {}
+        for dept_name in departments_list:
+            dept_obj, _ = Organization.objects.get_or_create(
+                name=dept_name,
+                defaults={
+                    "org_type": Organization.OrgType.DEPARTMENT,
+                    "jurisdiction": Organization.Jurisdiction.INDIA,
+                }
+            )
+            depts[dept_name] = dept_obj
+
+        org_hostel = depts["Department of Civil Engineering"]
+        org_academic = depts["Department of Computer Science and Engineering"]
 
         admin = _user("admin", "admin@msu-vision.example", "demo123", UserProfile.StakeholderType.FOUNDATION_ADMIN)
         demo_u, _ = User.objects.get_or_create(username="demo", defaults={"email": "demo@local"})
@@ -115,6 +145,13 @@ class Command(BaseCommand):
             "donor_james", "james.donor@example.com", "demo123", UserProfile.StakeholderType.DONOR
         )
         auditor = _user("auditor_kim", "audit@msu-vision.example", "demo123", UserProfile.StakeholderType.AUDITOR)
+        hod_test = _user("hod_test", "hod.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.HOD)
+        gov_test = _user("gov_test", "gov.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.GOVERNANCE)
+        lead_test = _user("lead_test", "lead.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.PROJECT_LEAD)
+        donor_test = _user("donor_test", "donor.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.DONOR)
+        finance_test = _user("finance_test", "finance.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.FINANCE_CONTROLLER)
+        volunteer_test = _user("volunteer_test", "volunteer.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.VOLUNTEER)
+        auditor_test = _user("auditor_test", "auditor.test@msu-vision.example", "Tester@123", UserProfile.StakeholderType.AUDITOR)
 
         # --- HOD: draft need (academic) ---
         need_wifi, _ = Need.objects.get_or_create(

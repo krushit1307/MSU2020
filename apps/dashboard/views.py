@@ -305,7 +305,7 @@ def governance_profile_bulk_upload(request):
     from apps.core.upload_security import process_upload
     from django.core.exceptions import ValidationError
     try:
-        process_upload(csv_file, request.user, "csv_import", allowed_mimes=["text/csv", "application/csv", "application/vnd.ms-excel"])
+        process_upload(csv_file, request.user, "csv_import", allowed_mimes=["text/csv", "application/csv", "application/vnd.ms-excel", "text/plain"])
     except ValidationError as e:
         messages.error(request, str(e.message) if hasattr(e, 'message') else str(e))
         return redirect("dashboard:governance_queue")

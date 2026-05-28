@@ -3,37 +3,173 @@
 {% block title %}{% if object %}Edit{% else %}New{% endif %} need{% endblock %}
 {% block content %}
 <h1 class="mb-6 text-2xl font-bold">{% if object %}Edit need{% else %}Create need{% endif %}</h1>
-<form method="post" enctype="multipart/form-data" class="max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+<form method="post" enctype="multipart/form-data"
+  class="max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
   {% csrf_token %}
   {% if form.non_field_errors %}
-    <ul class="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-      {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
-    </ul>
+  <ul class="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+    {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+  </ul>
   {% endif %}
   {% for field in form %}
-    <div>
-      <label class="block text-sm font-medium text-slate-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  <div>
+    <label class="block text-sm font-medium text-slate-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% if field.name == "owners" %}
+      <div class="relative mt-1" id="customOwnersDropdownContainer">
+        <!-- Trigger Button -->
+        <button type="button" id="ownersDropdownTrigger" class="flex items-center justify-between w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-left shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          <span id="ownersDropdownSelectedText" class="truncate text-slate-700">Select owners...</span>
+          <svg class="h-4 w-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        <!-- Dropdown Panel (hidden by default) -->
+        <div id="ownersDropdownPanel" class="hidden absolute left-0 right-0 z-50 mt-1 max-h-96 overflow-hidden rounded border border-slate-200 bg-white p-2 shadow-lg flex flex-col gap-2">
+          <!-- Search Input -->
+          <input type="text" id="ownersSearch" placeholder="🔍 Search owners..."
+            class="block w-full rounded border border-slate-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 shrink-0">
+          
+          <!-- Options Scroll Container -->
+          <div id="ownersOptionsList" class="flex-1 overflow-y-auto max-h-80 divide-y divide-slate-100">
+            <!-- JavaScript will populate this list dynamically -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Hide Django's original field but keep it in the DOM -->
+      <div class="hidden">
+        {% render_field field %}
+      </div>
+    {% else %}
       {% render_field field class="mt-1 block w-full rounded border border-slate-300 px-3 py-2" %}
-      {% if field.errors %}<p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
-    </div>
+    {% endif %}
+    {% if field.errors %}<p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>{% endif %}
+  </div>
   {% endfor %}
   <div>
     <label class="block text-sm font-medium text-slate-700" for="id_attachments">Supporting documents</label>
-    <input type="file" name="attachments" id="id_attachments" multiple
+    <input type="file" name="attachments" id="id_attachments" multiple {% if not object %}required{% endif %}
       accept=".pdf,.doc,.docx,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       class="mt-1 block w-full text-sm text-slate-600 file:mr-3 file:rounded file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-emerald-800 hover:file:bg-emerald-100">
-    <p class="mt-1 text-xs text-slate-500">PDF, Word (.doc, .docx), or Excel (.xlsx). Max 25 MB per file. You can select multiple files.</p>
+    <p class="mt-1 text-xs text-slate-500">PDF, Word (.doc, .docx), or Excel (.xlsx). Max 25 MB per file. You can select
+      multiple files.</p>
   </div>
   {% if object and object.attachments.exists %}
   <div class="rounded border border-slate-200 bg-slate-50 p-3 text-sm">
     <p class="mb-2 font-medium text-slate-700">Current attachments</p>
     <ul class="list-inside list-disc space-y-1 text-slate-600">
       {% for a in object.attachments.all %}
-        <li><a class="text-emerald-700 hover:underline" href="{% url 'needs:attachment_download' object.pk a.pk %}">{{ a.original_filename }}</a></li>
+      <li><a class="text-emerald-700 hover:underline" href="{% url 'needs:attachment_download' object.pk a.pk %}">{{
+          a.original_filename }}</a></li>
       {% endfor %}
     </ul>
   </div>
   {% endif %}
   <button type="submit" class="rounded bg-emerald-700 px-4 py-2 text-white hover:bg-emerald-800">Save</button>
 </form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const selectElement = document.getElementById('id_owners');
+    const triggerBtn = document.getElementById('ownersDropdownTrigger');
+    const panel = document.getElementById('ownersDropdownPanel');
+    const searchInput = document.getElementById('ownersSearch');
+    const optionsList = document.getElementById('ownersOptionsList');
+    const selectedTextSpan = document.getElementById('ownersDropdownSelectedText');
+
+    if (selectElement && triggerBtn && panel && searchInput && optionsList && selectedTextSpan) {
+      
+      // Update selected names displayed on the trigger button
+      function updateTriggerText() {
+        const selectedOptions = Array.from(selectElement.selectedOptions);
+        if (selectedOptions.length > 0) {
+          selectedTextSpan.textContent = selectedOptions.map(opt => opt.text).join(', ');
+          selectedTextSpan.classList.remove('text-slate-400');
+          selectedTextSpan.classList.add('text-slate-700');
+        } else {
+          selectedTextSpan.textContent = 'Select owners...';
+          selectedTextSpan.classList.remove('text-slate-700');
+          selectedTextSpan.classList.add('text-slate-400');
+        }
+      }
+
+      // Populate list of checkboxes/rows under the dropdown panel
+      function populateOptions() {
+        optionsList.innerHTML = '';
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        Array.from(selectElement.options).forEach(option => {
+          const isSelected = option.selected;
+          const labelText = option.text;
+          const matches = labelText.toLowerCase().includes(searchTerm);
+          
+          if (matches) {
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between px-2.5 py-2 cursor-pointer text-sm hover:bg-slate-50 transition-colors rounded';
+            if (isSelected) {
+              row.className += ' bg-emerald-50/50';
+            }
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = isSelected ? 'font-semibold text-emerald-800' : 'text-slate-700';
+            textSpan.textContent = labelText;
+            row.appendChild(textSpan);
+            
+            if (isSelected) {
+              const checkIcon = document.createElement('span');
+              checkIcon.className = 'text-emerald-600 font-bold';
+              checkIcon.textContent = '✓';
+              row.appendChild(checkIcon);
+            }
+            
+            // Toggle selection and close dropdown on click
+            row.addEventListener('click', function (e) {
+              e.stopPropagation();
+              option.selected = !option.selected;
+              
+              const changeEvent = new Event('change', { bubbles: true });
+              selectElement.dispatchEvent(changeEvent);
+              
+              updateTriggerText();
+              populateOptions();
+              
+              // Close dropdown after selection
+              panel.classList.add('hidden');
+            });
+            
+            optionsList.appendChild(row);
+          }
+        });
+      }
+
+      // Toggle dropdown open/close on trigger button click
+      triggerBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+          searchInput.value = '';
+          populateOptions();
+          searchInput.focus();
+        }
+      });
+
+      // Filter search
+      searchInput.addEventListener('input', function () {
+        populateOptions();
+      });
+
+      // Close when clicking outside of the dropdown container
+      document.addEventListener('click', function (e) {
+        if (!panel.classList.contains('hidden') && !panel.contains(e.target) && e.target !== triggerBtn) {
+          panel.classList.add('hidden');
+        }
+      });
+
+      // Initialize trigger text & list items
+      updateTriggerText();
+      populateOptions();
+    }
+  });
+</script>
 {% endblock %}

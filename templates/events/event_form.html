@@ -13,7 +13,7 @@
   This fundraising event will start in <strong>Draft</strong> and require <strong>Governance approval</strong> before publishing.
 </div>
 
-<form method="post" class="max-w-2xl space-y-6 rounded-xl border bg-white p-6 shadow-sm" id="event-form">
+<form method="post" enctype="multipart/form-data" class="max-w-2xl space-y-6 rounded-xl border bg-white p-6 shadow-sm" id="event-form">
   {% csrf_token %}
   {% if form.non_field_errors %}
   <div class="alert-banner alert-error">{{ form.non_field_errors }}</div>

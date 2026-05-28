@@ -56,6 +56,12 @@ class Event(TimeStampedModel):
     )
     target_audience = models.TextField(blank=True)
     is_fundraising = models.BooleanField(default=False)
+    details_doc = models.FileField(
+        upload_to="event_details/",
+        blank=True,
+        null=True,
+        help_text="Upload event details or agenda documents."
+    )
     originated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="events_originated"
     )

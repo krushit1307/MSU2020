@@ -144,6 +144,13 @@
           sidebar.classList.toggle('-translate-x-full');
         });
       }
+
+      // Safely blur active number inputs on scroll to prevent value changes while keeping page scroll active
+      document.addEventListener('wheel', function (e) {
+        if (document.activeElement && document.activeElement.type === 'number') {
+          document.activeElement.blur();
+        }
+      });
     })();
   </script>
   {% block extra_js %}{% endblock %}

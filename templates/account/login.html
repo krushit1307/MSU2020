@@ -43,16 +43,7 @@
     Sign in with Google
   </a>
 </form>
-{% if debug %}
-<div class="mt-6 max-w-sm rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm">
-  <p class="font-semibold text-emerald-900">Local demo (no Google needed)</p>
-  <p class="mt-1 text-emerald-800">Use username <code class="rounded bg-white px-1">demo</code> and password <code class="rounded bg-white px-1">demo</code> above, or:</p>
-  <form method="post" action="{% url 'demo_login' %}" class="mt-3">
-    {% csrf_token %}
-    <button type="submit" class="w-full rounded bg-emerald-800 py-2 text-white hover:bg-emerald-900">Sign in as demo</button>
-  </form>
-</div>
-{% endif %}
+
 <p class="mt-6 text-center text-xs text-slate-500">Optional: <a class="text-emerald-700" href="/accounts/google/login/">Google</a> after setting <code>GOOGLE_CLIENT_ID</code> in <code>.env</code>.</p>
 <p class="mt-4 text-center text-sm text-slate-600">
   Already invited with a username? <a class="text-emerald-700 hover:underline" href="{% url 'account_signup' %}">Create password account</a>

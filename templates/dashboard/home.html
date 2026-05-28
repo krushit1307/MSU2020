@@ -39,19 +39,7 @@
   </div>
 </section>
 
-<div class="mb-8 rounded-xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-white p-4 text-sm text-slate-700 shadow-sm">
-  <h2 class="mb-2 font-semibold text-emerald-900">Try these personas (password <code class="rounded bg-white px-1">demo123</code>)</h2>
-  <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-    <li><strong>hod_hostel</strong> — Matched hostel need; open <a class="text-emerald-700 underline" href="{% url 'needs:list' %}">Needs</a> to review or create more.</li>
-    <li><strong>hod_academic</strong> — Draft Wi-Fi need to submit.</li>
-    <li><strong>lead_hostel</strong> — Boys hostel project + monthly milestones.</li>
-    <li><strong>volunteer_riya</strong> — Same project on the volunteer team.</li>
-    <li><strong>donor_anita</strong> / <strong>donor_james</strong> — Funding + July gala below.</li>
-    <li><strong>gov_meera</strong> — <a class="text-amber-800 underline" href="{% url 'dashboard:governance_queue' %}">Governance</a> (persona roster, search, approvals).</li>
-    <li><strong>finance1</strong> — Record contributions / approve expenses.</li>
-    <li><strong>demo</strong> / <strong>demo</strong> — Full admin shortcut.</li>
-  </ul>
-</div>
+
 
 {% if 'donor' in persona_codes and donor_portfolio %}
 <section class="mb-8 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
